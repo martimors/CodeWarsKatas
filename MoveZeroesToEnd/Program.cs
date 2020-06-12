@@ -16,8 +16,6 @@ namespace MoveZeroesToEnd
     {
         public static int[] MoveZeroes(int[] arr)
         {
-            // TODO: Program me
-            int length = arr.Length;
             var list = new List<int>();
             int nZero = 0;
 
