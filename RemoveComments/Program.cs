@@ -17,7 +17,7 @@ namespace RemoveComments
                 {
                     text = Regex.Replace(text, @"\#(.*)".Replace("#", symbol), "");
                 }
-                return text;
+                return Regex.Replace(text, @"\s (.*)", "");
             }
         }
     }
