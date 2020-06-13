@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace RemoveComments
@@ -7,18 +8,19 @@ namespace RemoveComments
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(StripCommentsSolution.StripComments("asdhiasd #39458\n\n123\n$gautur", new string[] { "#", "$" }));
+            Console.WriteLine(StripCommentsSolution.StripComments("a\n", new string[] { "a" }).Replace(" ", "£").Replace("\n", "\\n"));
         }
-        public class StripCommentsSolution
+public class StripCommentsSolution
+{
+    public static string StripComments(string text, string[] commentSymbols)
+    {
+        foreach (string symbol in commentSymbols)
         {
-            public static string StripComments(string text, string[] commentSymbols)
-            {
-                foreach (string symbol in commentSymbols)
-                {
-                    text = Regex.Replace(text, @"\#(.*)".Replace("#", symbol), "");
-                }
-                return Regex.Replace(text, @"\s (.*)", "");
-            }
+            text = Regex.Replace(text, @"LOL(.*)".Replace("LOL", Regex.Escape(symbol)), "");
         }
+        string outstring = string.Join("\n", text.Split('\n').Select(s => s.TrimEnd()));
+        return outstring.Replace("\n", "") == string.Empty ? string.Empty : outstring;
+    }
+}
     }
 }
