@@ -19,12 +19,11 @@ namespace Skyscrapers4by4
         {
             public static int[][] SolvePuzzle(int[] clues)
             {
-                // Start your coding here...
-                return new[]{ new []{2, 1, 4, 3},
-                               new []{3, 4, 1, 2},
-                               new []{4, 2, 3, 1},
-                               new []{1, 3, 2, 4}};
+                var solution = new Solver(clues).Board;
+                return solution;
             }
+
+
         }
 
     }
