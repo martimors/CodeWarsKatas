@@ -1,11 +1,11 @@
-﻿using System;
-using Skyscrapers4by4.Program;
-
+using System;
 using Xunit;
+using Skyscrapers4by4;
 
-namespace Skyscrapers4by4.Tests
+namespace Skyscrapers4by4Tests
 {
-    public class Class1
+
+    public class SkyscrapersTests
     {
         [Fact]
         public void SolveSkyscrapers1()
@@ -20,7 +20,7 @@ namespace Skyscrapers4by4.Tests
                                new []{3, 4, 2, 1},
                                new []{2, 1, 3, 4 }};
 
-            var actual = Skyscrapers.SolvePuzzle(clues);
+            var actual = Program.Skyscrapers.SolvePuzzle(clues);
             Assert.Equal(expected, actual);
         }
 
@@ -37,8 +37,9 @@ namespace Skyscrapers4by4.Tests
                                new []{4, 2, 3, 1},
                                new []{1, 3, 2, 4}};
 
-            var actual = Skyscrapers.SolvePuzzle(clues);
+            var actual = Program.Skyscrapers.SolvePuzzle(clues);
             Assert.Equal(expected, actual);
         }
     }
+
 }
