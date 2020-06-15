@@ -38,14 +38,12 @@ namespace Skyscrapers4by4
 
         public void Solve()
         {
-            var previousBoard = board.ToList().ToArray();// This doesnt work because arrays are reference types!!!
             // We know that all positions next to 4 must be 1, and next to 1 must be 4
             FillInFoursAndOnes();
 
             // Loop through each position and check the rules to see if something can be inserted
-            while (board.Min().Min() == 0)
+            while (board.Select(x => x.Min()).Min() == 0)
             {
-                previousBoard = board;
                 for (int row = 0; row < board.Length; row++)
                 {
                     for (int col = 0; col < board.Length; col++)
@@ -83,9 +81,6 @@ namespace Skyscrapers4by4
                 }
             }
 
-            // If all clues are 0 we can give up here
-            if (clue.Max() == 0) { return; }
-
             // If this position is the only one with one possible number in the row or the column
             var temp = possibleValues;
 
@@ -103,6 +98,7 @@ namespace Skyscrapers4by4
             if (temp.Count == 1)
             {
                 SetPositionTo(row, col, temp[0]);
+                return;
             }
 
             // Same for column
@@ -111,12 +107,13 @@ namespace Skyscrapers4by4
             {
                 if (i != row)
                 {
-                    temp = temp.Except(GetPossibleValues(col, i)).ToList();
+                    temp = temp.Except(GetPossibleValues(i, col)).ToList();
                 }
             }
             if (temp.Count == 1)
             {
                 SetPositionTo(row, col, temp[0]);
+                return;
             }
         }
 
