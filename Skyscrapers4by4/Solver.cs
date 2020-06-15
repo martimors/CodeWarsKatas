@@ -1,13 +1,13 @@
 using System.Linq;
 using System;
 using System.Collections.Generic;
-using Skyscrapers4by4.Utils;
 
 namespace Skyscrapers4by4
 {
     class Solver
     {
         private int[][] board = new int[][] { new int[4], new int[4], new int[4], new int[4] };
+        private int[][] trialBoard = new int[][] { new int[4], new int[4], new int[4], new int[4] };
         private bool[,,] valuePossible = new bool[4, 4, 4];
         private int[] clues = new int[16];
         private int[] buildingHeights = new[] { 1, 2, 3, 4 };
@@ -38,83 +38,84 @@ namespace Skyscrapers4by4
 
         public void Solve()
         {
-            // We know that all positions next to 4 must be 1, and next to 1 must be 4
-            FillInFoursAndOnes();
-
-            // Loop through each position and check the rules to see if something can be inserted
+            int row = 0; int col = 0; int choice;
             while (board.Select(x => x.Min()).Min() == 0)
             {
-                for (int row = 0; row < board.Length; row++)
+                // There are > 0 possible numbers?
+                var possibilities = GetPossibleValues(row, col);
+                if (possibilities.Count > 0)
                 {
-                    for (int col = 0; col < board.Length; col++)
-                    {
-                        if (board[row][col] == 0)
-                        {
-                            ApplyClueRules(row, col);
-                        }
-                    }
+                    // Yes: Pick a possible number
+                    choice = possibilities[0];
                 }
-                Console.WriteLine("Finished iteration!");
+                else
+                {
+                    // No: Replenish all posibilities and step one back
+                    // Also unset the value
+                    board[row][col] = 0;
+                    ReplenishPossibleValues(row, col);
+                    var newPos = StepOne(row, col, false);
+                    row = newPos[0]; col = newPos[1];
+                    continue;
+                }
+
+                // Check rules
+                if (IsUniqueInCross(row, col, choice) && ViewIsOKFromAllSides(row, col, choice))
+                {
+                    // If ok, set value and step one forwards
+                    board[row][col] = choice;
+                    var newPos = StepOne(row, col, true);
+                    row = newPos[0]; col = newPos[1];
+                    continue;
+
+                }
+                else
+                {
+                    // If not ok, remove from possibilities and unset
+                    board[row][col] = 0;
+                    valuePossible[row, col, choice - 1] = false;
+                }
+
                 Printing.Print2DArray(board);
             }
 
         }
 
-
-        private void ApplyClueRules(int row, int col)
+        public static int[] StepOne(int fromRow, int fromCol, bool forwards)
         {
-            var possibleValues = GetPossibleValues(row, col);
+            int row = fromRow; int col = fromCol;
 
-            var clue = CluesFromPosition(row, col);
+            if (forwards) { if (fromCol == 3) { col = 0; row++; } else { col++; } }
+            else { if (fromCol == 0) { col = 3; row--; } else { col--; } }
+            return new int[] { row, col };
+        }
 
-            // Value must be unique in cross
-            foreach (int value in buildingHeights)
+        private bool ViewIsOKFromAllSides(int row, int col, int n)
+        {
+            var clues = CluesFromPosition(row, col);
+            var rowValues = RowValues(row);
+            var colValues = ColValues(col);
+
+            for (int i = 0; i < clues.Length; i++)
             {
-                if (!IsUniqueInCross(row, col, value))
+                if (clues[i] == 0) { continue; }
+                switch (i)
                 {
-                    possibleValues.Remove(value);
-                }
-                if (possibleValues.Count == 1)
-                {
-                    SetPositionTo(row, col, possibleValues[0]);
-                    return;
-                }
-            }
-
-            // If this position is the only one with one possible number in the row or the column
-            var temp = possibleValues;
-
-            if (row == 2 && col == 0)
-            {
-                Console.WriteLine("LOL!");
-            }
-            for (int i = 0; i < buildingHeights.Length; i++)
-            {
-                if (i != col)
-                {
-                    temp = temp.Except(GetPossibleValues(row, i)).ToList();
-                }
-            }
-            if (temp.Count == 1)
-            {
-                SetPositionTo(row, col, temp[0]);
-                return;
-            }
-
-            // Same for column
-            temp = possibleValues;
-            for (int i = 0; i < buildingHeights.Length; i++)
-            {
-                if (i != row)
-                {
-                    temp = temp.Except(GetPossibleValues(i, col)).ToList();
+                    case 0: // Top
+                        if (!View(colValues).Contains(clues[i])) { return false; }
+                        break;
+                    case 1: // Right
+                        if (!View(ReverseArray(rowValues)).Contains(clues[i])) { return false; }
+                        break;
+                    case 2: // Bottom
+                        if (!View(ReverseArray(colValues)).Contains(clues[i])) { return false; }
+                        break;
+                    case 3: // Left
+                        if (!View(rowValues).Contains(clues[i])) { return false; }
+                        break;
                 }
             }
-            if (temp.Count == 1)
-            {
-                SetPositionTo(row, col, temp[0]);
-                return;
-            }
+            return true;
         }
 
         private List<int> GetPossibleValues(int row, int col)
@@ -128,12 +129,35 @@ namespace Skyscrapers4by4
             return possibleValues;
         }
 
+        private void ReplenishPossibleValues(int row, int col)
+        {
+            for (int i = 0; i < valuePossible.GetLength(2); i++)
+            {
+                valuePossible[row, col, i] = true;
+            }
+        }
+
         private int[] RowValues(int row) { return board[row]; }
         private int[] ColValues(int col) { return board.Select(x => x[col]).ToArray(); }
 
+        private static List<int> View(int[] vector)
+        {
+            // Based on logic, remove possibilities based on the position
+            var p = new List<int>() { 1, 2, 3, 4 };
+            if (vector[3] == 4 || vector[0] == 1) { p.Remove(1); }
+            if (vector[3] == 3 || vector[3] == 2 || vector[3] == 1 || vector[2] == 1) { p.Remove(4); }
+            if (vector[2] == 4 || vector[0] == 2) { p.Remove(4); p.Remove(1); }
+            if (vector[2] == 2) { p.Remove(4); p.Remove(3); }
+            if (vector[2] == 1) { p.Remove(4); }
+            if (vector[0] == 4) { p.Remove(2); p.Remove(3); p.Remove(4); }
+            if (vector[0] == 3 || vector[1] == 4) { p.Remove(1); p.Remove(3); p.Remove(4); }
+            if (vector[1] == 3) { p.Remove(2); p.Remove(4); }
+
+            return p;
+        }
+
         private bool IsUniqueInCross(int row, int col, int n)
         {
-            var clues = CluesFromPosition(row, col);
             var rowValues = RowValues(row);
             var colValues = ColValues(col);
 
@@ -196,6 +220,16 @@ namespace Skyscrapers4by4
         private void SetPositionTo(int row, int col, int n)
         {
             board[row][col] = n;
+        }
+
+        private static int[] ReverseArray(int[] arr)
+        {
+            var reversed = new int[arr.Length];
+            for (int i = arr.Length - 1; i >= 0; i--)
+            {
+                reversed[arr.Length - i - 1] = arr[i];
+            }
+            return reversed;
         }
     }
 }

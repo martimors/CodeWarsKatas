@@ -1,5 +1,4 @@
 ﻿using System;
-using Skyscrapers4by4.Utils;
 
 namespace Skyscrapers4by4
 {
@@ -7,10 +6,10 @@ namespace Skyscrapers4by4
     {
         static void Main(string[] args)
         {
-            var clues = new int[]{ 2, 2, 1, 3,
-                           2, 2, 3, 1,
-                           1, 2, 2, 3,
-                           3, 2, 1, 3};
+            var clues = new[] { 0, 0, 1, 2,
+                                0, 2, 0, 0,
+                                0, 3, 0, 0,
+                                0, 1, 0, 0 };
 
             int[][] solution = Skyscrapers.SolvePuzzle(clues);
             Printing.Print2DArray(solution);
@@ -20,6 +19,7 @@ namespace Skyscrapers4by4
             public static int[][] SolvePuzzle(int[] clues)
             {
                 var solution = new Solver(clues).Board;
+                Printing.Print2DArray(solution);
                 return solution;
             }
 
