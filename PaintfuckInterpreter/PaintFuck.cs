@@ -14,9 +14,6 @@ namespace PaintfuckInterpreter
             int pos = 0;
             char c;
 
-            // Populate the board with all false
-            Populate(grid, false);
-
             while (i < iterations && pos < code.Length)
             {
                 // Read first character
@@ -79,16 +76,6 @@ namespace PaintfuckInterpreter
                 }
             }
             return o.ToString();
-        }
-        public static void Populate<T>(this T[,] arr, T value)
-        {
-            for (int i = 0; i < arr.GetLength(0); i++)
-            {
-                for (int j = 0; j < arr.GetLength(1); j++)
-                {
-                    arr[i, j] = value;
-                }
-            }
         }
     }
 }
