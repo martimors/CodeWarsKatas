@@ -6,7 +6,7 @@ namespace Skyscrapers4by4
     {
         public static void Print2DArray<T>(T[][] matrix)
         {
-            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+            Console.WriteLine("\nThe board now looks like this:");
             for (int i = 0; i < matrix.Length; i++)
             {
                 for (int j = 0; j < matrix[i].Length; j++)
@@ -15,6 +15,7 @@ namespace Skyscrapers4by4
                 }
                 Console.WriteLine();
             }
+            Console.WriteLine("\n\n");
         }
 
 

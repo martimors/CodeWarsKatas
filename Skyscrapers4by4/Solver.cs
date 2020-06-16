@@ -41,6 +41,7 @@ namespace Skyscrapers4by4
             int row = 0; int col = 0; int choice;
             while (board.Select(x => x.Min()).Min() == 0)
             {
+                Printing.Print2DArray(board);
                 // There are > 0 possible numbers?
                 var possibilities = GetPossibleValues(row, col);
                 if (possibilities.Count > 0)
@@ -58,28 +59,85 @@ namespace Skyscrapers4by4
                     row = newPos[0]; col = newPos[1];
                     continue;
                 }
+                if (row == 2 && col == 1 && choice == 4)
+                {
+                    int a = 1;
+                }
 
                 // Check rules
                 if (IsUniqueInCross(row, col, choice) && ViewIsOKFromAllSides(row, col, choice))
                 {
-                    // If ok, set value and step one forwards
+                    // If ok, set value and check the views
                     board[row][col] = choice;
-                    var newPos = StepOne(row, col, true);
-                    row = newPos[0]; col = newPos[1];
-                    continue;
+                    if (CluesFitWithBuildingHeights(row, col))
+                    {
+                        Console.WriteLine($"Value {choice} is ok at {row}:{col}");
+                        // If ok step one forwards
+                        var newPos = StepOne(row, col, true);
+                        row = newPos[0]; col = newPos[1];
+                        continue;
+                    }
 
                 }
-                else
-                {
-                    // If not ok, remove from possibilities and unset
-                    board[row][col] = 0;
-                    valuePossible[row, col, choice - 1] = false;
-                }
 
-                Printing.Print2DArray(board);
+                // If not ok (ie exited loop without hitting continue), remove from possibilities and unset
+                board[row][col] = 0;
+                if (row == 2 && col == 0 && choice == 3){
+                    int a = 1;
+                }
+                valuePossible[row, col, choice - 1] = false;
+
+
             }
 
         }
+
+        public bool CluesFitWithBuildingHeights(int row, int col)
+        {
+            var clues = CluesFromPosition(row, col);
+            var rowValues = RowValues(row);
+            var colValues = ColValues(col);
+
+            for (int i = 0; i < clues.Length; i++)
+            {
+                if (clues[i] == 0) { continue; }
+                switch (i)
+                {
+                    case 0: // Top
+                        if (!VectorFitsWithClue(colValues, clues[i])) { return false; }
+                        break;
+                    case 1: // Right
+                        if (!VectorFitsWithClue(ReverseArray(rowValues), clues[i])) { return false; }
+                        break;
+                    case 2: // Bottom
+                        if (!VectorFitsWithClue(ReverseArray(colValues), clues[i])) { return false; }
+                        break;
+                    case 3: // Left
+                        if (!VectorFitsWithClue(rowValues, clues[i])) { return false; }
+                        break;
+                }
+            }
+            return true;
+
+        }
+
+        public static bool VectorFitsWithClue(int[] vector, int clue)
+        {
+            if (vector.Contains(0)) { return true; }
+            int view = default(int);
+            int highestBuilding = default(int);
+            for (int i = 0; i < vector.Length; i++)
+            {
+                if (vector[i] > highestBuilding)
+                {
+                    view++; highestBuilding = vector[i];
+                }
+            }
+
+            return view == clue;
+
+        }
+
 
         public static int[] StepOne(int fromRow, int fromCol, bool forwards)
         {
@@ -155,6 +213,8 @@ namespace Skyscrapers4by4
 
             return p;
         }
+
+
 
         private bool IsUniqueInCross(int row, int col, int n)
         {
