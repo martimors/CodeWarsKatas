@@ -41,7 +41,7 @@ namespace Skyscrapers4by4
             int row = 0; int col = 0; int choice;
             while (board.Select(x => x.Min()).Min() == 0)
             {
-                Printing.Print2DArray(board);
+                //Printing.Print2DArray(board);
                 // There are > 0 possible numbers?
                 var possibilities = GetPossibleValues(row, col);
                 if (possibilities.Count > 0)
