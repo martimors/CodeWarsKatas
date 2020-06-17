@@ -1,7 +1,12 @@
+using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace PaintfuckInterpreter
 {
+    static class StringOccurrence
+    {
+    }
     public static class PaintFuck
     {
         public static string Interpret(string code, int iterations, int width, int height)
@@ -13,6 +18,8 @@ namespace PaintfuckInterpreter
             int col = 0;
             int pos = 0;
             char c;
+            var startBracketsAt = code.IndexOfAll("[");
+            var endBracketsAt = code.IndexOfAll("]");
 
             while (i < iterations && pos < code.Length)
             {
@@ -37,6 +44,7 @@ namespace PaintfuckInterpreter
                         pos++;
                         break;
                     case '[':
+                        JumpOverBlock(pos);
                         break;
                     case ']':
                         break;
@@ -46,6 +54,18 @@ namespace PaintfuckInterpreter
                 i++;
             }
             return ConvertBoolGridToString(grid);
+        }
+        public static IEnumerable<int> IndexOfAll(this string str, string value)
+        {
+            if (String.IsNullOrEmpty(value))
+                throw new ArgumentException("the string to find may not be empty", "value");
+            for (int index = 0; ; index += value.Length)
+            {
+                index = str.IndexOf(value, index);
+                if (index == -1)
+                    break;
+                yield return index;
+            }
         }
 
         public static int MoveX(char dir, int col, int width)
@@ -77,5 +97,7 @@ namespace PaintfuckInterpreter
             }
             return o.ToString();
         }
+
+        private static JumpOverBlock(int pos,)
     }
 }
