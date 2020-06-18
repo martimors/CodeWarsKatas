@@ -1,16 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace PaintfuckInterpreter
 {
-    static class StringOccurrence
-    {
-    }
     public static class PaintFuck
     {
         public static string Interpret(string code, int iterations, int width, int height)
         {
+            Console.WriteLine($"{code} {iterations} {width} {height}");
             // Initialize the grid
             var grid = new bool[height, width];
             int i = 0;
@@ -18,10 +15,8 @@ namespace PaintfuckInterpreter
             int col = 0;
             int pos = 0;
             char c;
-            var startBracketsAt = code.IndexOfAll("[");
-            var endBracketsAt = code.IndexOfAll("]");
 
-            while (i < iterations && pos < code.Length)
+            while (i <= iterations && pos < code.Length)
             {
                 // Read first character
                 c = code[pos];
@@ -36,7 +31,7 @@ namespace PaintfuckInterpreter
                         break;
                     case 'e':
                     case 'w':
-                        col = MoveX(c, col, height);
+                        col = MoveX(c, col, width);
                         pos++;
                         break;
                     case '*':
@@ -44,28 +39,26 @@ namespace PaintfuckInterpreter
                         pos++;
                         break;
                     case '[':
-                        JumpOverBlock(pos);
-                        break;
                     case ']':
+                        pos = grid[row, col] ? JumpOverBlock(pos, code, c == '[') : pos + 1;
+                        break;
+                    default:
+                        // Invalid characters don't count towards the iterations
+                        pos ++;
                         break;
                 }
 
-                // Go to next
+                // Go to next iteration
                 i++;
             }
             return ConvertBoolGridToString(grid);
         }
-        public static IEnumerable<int> IndexOfAll(this string str, string value)
+
+        public static string Reverse(this string s)
         {
-            if (String.IsNullOrEmpty(value))
-                throw new ArgumentException("the string to find may not be empty", "value");
-            for (int index = 0; ; index += value.Length)
-            {
-                index = str.IndexOf(value, index);
-                if (index == -1)
-                    break;
-                yield return index;
-            }
+            char[] charArray = s.ToCharArray();
+            Array.Reverse(charArray);
+            return new string(charArray);
         }
 
         public static int MoveX(char dir, int col, int width)
@@ -75,6 +68,7 @@ namespace PaintfuckInterpreter
             else if (col > width - 1) { col = 0; }
             return col;
         }
+
         public static int MoveY(char dir, int row, int height)
         {
             if (dir == 's') { row++; } else { row--; }
@@ -95,9 +89,28 @@ namespace PaintfuckInterpreter
                     if (j == grid.GetLength(1) - 1) { o.Append("\r\n"); }
                 }
             }
-            return o.ToString();
+            return o.ToString().TrimEnd();
         }
 
-        private static JumpOverBlock(int pos,)
+        private static int JumpOverBlock(int pos, string code, bool forwards)
+        {
+            // Reverse the string if backwards
+            if (!forwards) { code = code.Reverse().Replace('[', 'X').Replace(']', '[').Replace('X', ']'); pos = code.Length - 1 - pos; }
+            int closingBracePosition = 0;
+            int openBr = 0;
+            bool bracesMatch = false;
+            for (int i = 0; i < code.Length; i++)
+            {
+                if (code[i] == '[') { openBr++; } else if (code[i] == ']') { openBr--; }
+                if (i == pos) { openBr = 1; }
+                if (i > pos && openBr == 0) { closingBracePosition = i; bracesMatch = true; break; }
+            }
+            if (!bracesMatch) { throw new ArgumentException("Braces don't match!"); }
+
+            // Reverse the string again if we were going reverse
+            if (!forwards) { closingBracePosition = code.Length - 2 - closingBracePosition; }
+
+            return closingBracePosition + 1;
+        }
     }
 }
