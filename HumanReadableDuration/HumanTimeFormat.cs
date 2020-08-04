@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -10,6 +9,7 @@ namespace HumanReadableDuration
     {
         public static string formatDuration(int seconds)
         {
+            if (seconds == 0) return "now";
             // 1 second / second
             // 60 seconds / minute
             // 60 * 60 seconds / hour
@@ -28,7 +28,7 @@ namespace HumanReadableDuration
                 result = seconds / secondFactors[i];
                 remainder = seconds % secondFactors[i];
                 Console.WriteLine($"{seconds}∕{secondFactors[i]} = {result}");
-                Console.WriteLine($"{seconds} % {secondFactors[i]} = {remainder}");
+                Console.WriteLine($"{seconds} % {secondFactors[i]} = {remainder}a");
                 output[i] = result;
                 seconds -= (seconds - remainder);
             }
@@ -55,6 +55,7 @@ namespace HumanReadableDuration
             var stringOut = new StringBuilder();
             arrayIn = arrayIn.Reverse().ToArray();
             string tempUnit;
+
 
             for (int i = 0; i < arrayIn.Length; i++)
             {
