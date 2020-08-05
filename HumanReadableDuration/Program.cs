@@ -6,7 +6,7 @@ namespace HumanReadableDuration
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(HumanTimeFormat.formatDuration(132030240));
+            Console.WriteLine(HumanTimeFormat.formatDuration(3780));
         }
     }
 }

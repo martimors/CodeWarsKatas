@@ -19,13 +19,8 @@ namespace HumanReadableDuration
             // 60 * 60 * 24 * 365 seconds / year
             var factors = new int[] { 1, 60, 60, 24, 365 };
             var secondFactors = cumulativeProduct(factors);
-            var units = new List<KeyValuePair<string, int>>() {
-                new KeyValuePair<string, int>("year", 0),
-                new KeyValuePair<string, int>("day", 0),
-                new KeyValuePair<string, int>("hour", 0),
-                new KeyValuePair<string, int>("minute", 0),
-                new KeyValuePair<string, int>("second", 0),
-            };
+            var units = new string[] { "second", "minute", "hour", "day", "year" };
+            var calculatedUnits = new List<KeyValuePair<string, int>>();
             int remainder; int result;
 
 
@@ -34,11 +29,40 @@ namespace HumanReadableDuration
                 // Divide and see how many are left
                 result = seconds / secondFactors[i];
                 remainder = seconds % secondFactors[i];
-                units[i].Value = result;
+                if (result > 0)
+                {
+                    calculatedUnits.Add(new KeyValuePair<string, int>(units[i], result));
+                }
                 seconds -= (seconds - remainder);
             }
 
-            return arrayToHumanReadable(output);
+            return toHumanReadable(calculatedUnits);
+        }
+
+        private static string toHumanReadable(List<KeyValuePair<string, int>> unitValues)
+        {
+            var sb = new StringBuilder();
+            if (unitValues.Count == 1) return toFormattedString(unitValues[0]);
+
+            for (int i = 0; i < unitValues.Count; i++)
+            {
+                if (i < unitValues.Count - 1)
+                {
+                    sb.Append(toFormattedString(unitValues[i]));
+                }
+                else
+                {
+                    sb.Append("and " + toFormattedString(unitValues[i]));
+                }
+                if (i < unitValues.Count - 2) sb.Append(", "); else sb.Append(" ");
+            }
+            return sb.ToString().Trim();
+        }
+
+        private static string toFormattedString(KeyValuePair<string, int> unitValue)
+        {
+            string unit = unitValue.Value > 1 ? unitValue.Key + "s" : unitValue.Key;
+            return $"{unitValue.Value} {unit}";
         }
 
         private static int[] cumulativeProduct(int[] arrayIn)
