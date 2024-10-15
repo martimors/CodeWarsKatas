@@ -1,0 +1,12 @@
+mod categorize_member;
+mod sort_strings;
+mod does_my_number_look_big;
+mod printer_errors;
+mod odd_or_even;
+mod narcissist_number;
+mod count_characters;
+mod pangram;
+mod weight_for_weight;
+mod who_likes_it;
+mod camel_case;
+mod valid_braces;
